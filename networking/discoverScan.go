@@ -8,11 +8,15 @@ import (
 func DiscoverAndScanTpc(wg *sync.WaitGroup, subnet string, startPort int, endPort int) {
 	var runningHosts []string
 	var mu sync.Mutex
+
+	// Use a local WaitGroup for host discovery so we don't mix discovery
+	// counters with the caller's WaitGroup (which we use for port scans).
+	var hostWg sync.WaitGroup
 	for i := 1; i < 256; i++ {
-		wg.Add(1)
+		hostWg.Add(1)
 		hostip := fmt.Sprintf("%s%d", subnet, i)
 		go func(hostip string) {
-			defer wg.Done()
+			defer hostWg.Done()
 			addr, flg := HostsScan(hostip)
 			if flg {
 				mu.Lock()
@@ -21,7 +25,7 @@ func DiscoverAndScanTpc(wg *sync.WaitGroup, subnet string, startPort int, endPor
 			}
 		}(hostip)
 	}
-	wg.Wait()
+	hostWg.Wait()
 
 	for _, hostip := range runningHosts {
 		wg.Add(1)
