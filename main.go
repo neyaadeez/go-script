@@ -1,20 +1,21 @@
 package main
 
 import (
-	"fmt"
-	"scripting/m/networking"
-	"sync"
+    "flag"
+    "fmt"
+    "scripting/m/networking"
 )
 
 func main() {
-	wg := sync.WaitGroup{}
-	//host := flag.String("hostname", "127.0.0.1", "Enter host ip address")
-	// startPort := 1
-	// endPort := 1024
-	// flag.Parse()
-	networking.DiscoverAndScanTpc(&wg, "192.168.1.", 1, 1024)
+    subnet := flag.String("subnet", "192.168.1.", "subnet prefix (e.g., 192.168.1.)")
+    start := flag.Int("start", 1, "start port (inclusive)")
+    end := flag.Int("end", 1024, "end port (exclusive)")
+    flag.Parse()
 
-	wg.Wait()
-	// fmt.Printf("successfully scanned ports from %d to %d\n", startPort, endPort)
-	fmt.Println("---END---")
+    scanWg := networking.DiscoverAndScanTpc(*subnet, *start, *end)
+    if scanWg != nil {
+        scanWg.Wait()
+    }
+
+    fmt.Println("---END---")
 }
