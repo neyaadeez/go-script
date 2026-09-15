@@ -8,7 +8,7 @@ import (
 func HostsScan(hostip string) (string, bool) {
 	err := exec.Command("ping", "-c", "1", "-W", "1", hostip).Run()
 	if err != nil {
-		// fmt.Printf("HOST %s is DOWN\n", hostip)
+		fmt.Printf("HOST %s is DOWN\n", hostip)
 		return "", false
 	}
 
